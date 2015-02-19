@@ -33,7 +33,7 @@ MERGED from com.android.support:support-v4:21.0.0:16:5
 		ADDED from AndroidManifest.xml:10:9
 	android:theme
 		ADDED from AndroidManifest.xml:12:9
-activity#com.iponyradio.android.MainPicker
+activity#com.iponyradio.androidrelease.MainPicker
 ADDED from AndroidManifest.xml:13:9
 	android:label
 		ADDED from AndroidManifest.xml:15:13
@@ -49,13 +49,13 @@ category#android.intent.category.LAUNCHER
 ADDED from AndroidManifest.xml:19:17
 	android:name
 		ADDED from AndroidManifest.xml:19:27
-activity#com.iponyradio.android.SingleStationActivity
+activity#com.iponyradio.androidrelease.SingleStationActivity
 ADDED from AndroidManifest.xml:23:9
 	android:label
 		ADDED from AndroidManifest.xml:25:13
 	android:name
 		ADDED from AndroidManifest.xml:24:13
-activity#com.iponyradio.android.PlayerActivity
+activity#com.iponyradio.androidrelease.PlayerActivity
 ADDED from AndroidManifest.xml:27:9
 	android:label
 		ADDED from AndroidManifest.xml:29:13
@@ -69,7 +69,7 @@ ADDED from AndroidManifest.xml:31:13
 		ADDED from AndroidManifest.xml:33:17
 	android:name
 		ADDED from AndroidManifest.xml:32:17
-service#com.iponyradio.android.BackgroundService
+service#com.iponyradio.androidrelease.BackgroundService
 ADDED from AndroidManifest.xml:35:9
 	android:name
 		ADDED from AndroidManifest.xml:35:18
