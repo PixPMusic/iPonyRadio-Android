@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.androidrelease;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iponyradio.android" >
+    package="com.iponyradio.androidrelease" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -30,7 +30,7 @@
             android:parentActivityName=".SingleStationActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.iponyradio.android.SingleStationActivity" />
+                android:value="com.iponyradio.androidrelease.SingleStationActivity" />
         </activity>
         <service android:name=".BackgroundService"/>
     </application>

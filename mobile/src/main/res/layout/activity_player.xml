@@ -4,7 +4,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.iponyradio.android.PlayerActivity">
+    tools:context="com.iponyradio.androidrelease.PlayerActivity">
 
     <TextView android:id="@+id/player_station_name"
         android:layout_width="fill_parent"

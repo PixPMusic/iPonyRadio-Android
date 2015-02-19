@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.iponyradio.android;
+package com.iponyradio.androidrelease;
 
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 

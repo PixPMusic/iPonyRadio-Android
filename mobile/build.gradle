@@ -5,10 +5,10 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.iponyradio.android"
+        applicationId "com.iponyradio.androidrelease"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 2
+        versionCode 3
         versionName "1.0.1"
     }
     buildTypes {

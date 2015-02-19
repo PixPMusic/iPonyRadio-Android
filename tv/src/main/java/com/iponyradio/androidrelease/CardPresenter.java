@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.iponyradio.android;
+package com.iponyradio.androidrelease;
 
 import android.content.Context;
 import android.graphics.Bitmap;

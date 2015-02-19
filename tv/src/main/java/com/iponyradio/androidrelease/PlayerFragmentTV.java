@@ -1,11 +1,10 @@
-package com.iponyradio.android;
+package com.iponyradio.androidrelease;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;

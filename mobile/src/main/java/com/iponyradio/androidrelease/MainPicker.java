@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.androidrelease;
 
 import java.util.ArrayList;
 import java.util.HashMap;

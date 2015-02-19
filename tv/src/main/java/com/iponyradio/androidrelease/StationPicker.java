@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.iponyradio.android;
+package com.iponyradio.androidrelease;
 
 import java.net.URI;
 import java.util.Collections;
