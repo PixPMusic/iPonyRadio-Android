@@ -1,228 +1,128 @@
 package com.iponyradio.android;
 
-import android.app.IntentService;
+import java.io.IOException;
+
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.wifi.WifiManager;
 import android.os.IBinder;
-import android.os.PowerManager;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
-import java.io.IOException;
-
-/**
- * Created by Pixel on 2/9/2015.
- */
-public class BackgroundService extends IntentService implements MediaPlayer.OnPreparedListener {
-
-    // Fields
-    // Stream Related
-    private static String currentStreamUrl;
-    private static boolean isPlaying;
-
-    // Notification Stuff
-    private static String streamTitle;
-    private static String artist;
-    private static String song;
-    private static String coverURL;
-    private static String notificationTitle;
-    private static String notificationBody;
-
-    // More MediaPlayer and WifiLock stuff
-    private MediaPlayer m;
-    private WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
-            .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-    private Boolean wifiLocked;
-
-    public BackgroundService() {
-        super("BackgroundService");
-    }
-
+public class BackgroundService extends Service {
+    private static final String TAG = "StreamService";
+    MediaPlayer mp;
+    boolean isPlaying;
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
+    Notification n;
+    NotificationManager notificationManager;
+    String url;
+    String station;
+    // Change this int to some number specifically for this app
+    int notifId = 5315;
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        String stream_url = intent.getStringExtra("STREAM_URL");
-        if (!stream_url.equals("null")) {
-            try {
-                setCurrentStreamUrl(stream_url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        int playpause = intent.getIntExtra("PLAY_PAUSE", 0);
-        switch (playpause) {
-            case 0:
-                break;
-            case 1:
-                try {
-                    play();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            case 2:
-                stop();
-            default:
-                break;
-        }
+    public IBinder onBind(Intent arg0) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate");
 
-    // Accessor Methods
+        // Init the SharedPreferences and Editor
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        url = prefs.getString("URL", "http://176.31.115.196:8214/");
+        station = prefs.getString("STATION", "FOOBAR");
+        editor = prefs.edit();
 
-    /**
-     * @return Playining Variable as Boolean
-     */
-    public static boolean checkPlaying() {
-        return isPlaying;
-    }
+        // Set up the buffering notification
+        notificationManager = (NotificationManager) getApplicationContext()
+                .getSystemService(NOTIFICATION_SERVICE);
+        Context context = getApplicationContext();
 
-    /**
-     * Change the Stream URL and restart the stream if it's running
-     * @param url
-     */
-    public void setCurrentStreamUrl(String url) throws IOException {
-        currentStreamUrl = url;
-        restartWithNewURL();
-    }
+        String notifTitle = context.getResources().getString(R.string.app_name);
+        String notifMessage = context.getResources().getString(R.string.buffering);
 
-    /**
-     * @return the current Stream URL
-     */
-    public String checkURL() {
-        return currentStreamUrl;
-    }
+        n = new Notification();
+        n.icon = R.drawable.ic_launcher;
+        n.tickerText = "Buffering";
+        n.when = System.currentTimeMillis();
 
-    /**
-     * Enables Wifi Lock and sets
-     * wifiLocked boolean true
-     */
-    public void lockWifi() {
-        if (!checkWifiLock()) {
-            wifiLock.acquire();
-            wifiLocked = true;
+        Intent nIntent = new Intent(context, PlayerActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 0, nIntent, 0);
+
+        n.setLatestEventInfo(context, notifTitle, notifMessage, pIntent);
+
+        notificationManager.notify(notifId, n);
+
+        // It's very important that you put the IP/URL of your ShoutCast stream here
+        // Otherwise you'll get Webcom Radio
+        mp = new MediaPlayer();
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mp.setDataSource(url);
+            mp.prepare();
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            // TODO Auto-generated catch block
+            Log.e(TAG, "SecurityException");
+        } catch (IllegalStateException e) {
+            // TODO Auto-generated catch block
+            Log.e(TAG, "IllegalStateException");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            Log.e(TAG, "IOException");
         }
     }
 
-    /**
-     * Disables Wifi Lock and
-     * Sets wifiLocked boolean false
-     */
-    public void unlockWifi() {
-        if (checkWifiLock()) {
-            wifiLock.release();
-            wifiLocked = false;
-        }
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onStart(Intent intent, int startId) {
+        Log.d(TAG, "onStart");
+        mp.start();
+        // Set the isPlaying preference to true
+        editor.putBoolean("isPlaying", true);
+        editor.commit();
+
+        Context context = getApplicationContext();
+        String notifTitle = context.getResources().getString(R.string.app_name);
+        String notifMessage = station + context.getResources().getString(R.string.now_playing);
+
+        n.icon = R.drawable.ic_launcher;
+        n.tickerText = notifMessage;
+        n.flags = Notification.FLAG_NO_CLEAR;
+        n.when = System.currentTimeMillis();
+
+        Intent nIntent = new Intent(context, PlayerActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 0, nIntent, 0);
+
+        n.setLatestEventInfo(context, notifTitle, notifMessage, pIntent);
+        // Change 5315 to some nother number
+        notificationManager.notify(notifId, n);
     }
-
-    /**
-     * returns the value of boolean wifiLocked
-     */
-    public boolean checkWifiLock() {
-        return wifiLocked;
-    }
-
-    /**
-     * Toggles MainActivity/Pause state
-     */
-    public void togglePlayPause() throws IOException {
-        if (checkPlaying()) {
-            pause();
-        } else {
-            play();
-        }
-    }
-
-    /**
-     * Stops the Media Player
-     */
-    public void stopPlaying() {
-        if (checkPlaying()) {
-            stop();
-        }
-    }
-
-    /**
-     * Check player state and kill the mediaplayer
-     */
-    public void killMedia() {
-        if (isPlaying) {
-            stop();
-        }
-        destroy();
-    }
-
-
-    // Private Methods
-
-    /**
-     * Sets Playing variable to true
-     */
-    private void setPlaying() {
-        isPlaying = true;
-    }
-
-    /**
-     * Sets Playing variable to False
-     */
-    private void setStopped() {
-        isPlaying = false;
-    }
-
-    /**
-     * Restarts the Stream
-     * (Called by <code>setCurrentStreamURL()</code>
-     */
-    private void restartWithNewURL() throws IOException {
-        if (checkPlaying()) {
-            stop();
-        }
-        play();
-    }
-
-    public void play() throws IOException {
-        if (!checkPlaying()) {
-            setPlaying();
-        } else {
-            stop();
-        }
-        m.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        m.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        lockWifi();
-        m.setDataSource(currentStreamUrl);
-        m.setOnPreparedListener(this);
-        m.prepareAsync();
-    }
-
-    private void stop() {
-        if (checkPlaying()) {
-            m.stop();
-            wifiLock.release();
-            destroy();
-        }
-    }
-
-    private void pause() {
-        if (checkPlaying()) {
-            m.pause();
-        }
-    }
-
-    private void destroy() {
-        if (checkPlaying()) {
-            stop();
-        }
-        m.release();
-        m = null;
-        unlockWifi();
-    }
-
-
-    // Public Methods
 
     @Override
-    public void onPrepared(MediaPlayer mediaPlayer) {
-        mediaPlayer.start();
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        mp.stop();
+        mp.release();
+        mp = null;
+        editor.putBoolean("isPlaying", false);
+        editor.commit();
+        notificationManager.cancel(notifId);
     }
+
 }
