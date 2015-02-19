@@ -39,5 +39,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/playpause"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"/>
 </RelativeLayout>
