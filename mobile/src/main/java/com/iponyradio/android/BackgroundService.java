@@ -99,7 +99,7 @@ public class BackgroundService extends Service {
 
         Context context = getApplicationContext();
         String notifTitle = context.getResources().getString(R.string.app_name);
-        String notifMessage = station + context.getResources().getString(R.string.now_playing);
+        String notifMessage = station + " " + context.getResources().getString(R.string.now_playing);
 
         n.icon = R.drawable.ic_launcher;
         n.tickerText = notifMessage;
