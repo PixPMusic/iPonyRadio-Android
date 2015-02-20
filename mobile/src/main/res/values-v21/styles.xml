@@ -7,5 +7,11 @@
         <item name="android:colorAccent">#FF5252</item>
         <item name="android:textColorPrimary">#FFFFFF</item>
         <item name="android:navigationBarColor">#F44336</item>
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style name="MyActionBar" parent="@android:style/Widget.Material.Light.ActionBar">
+        <item name="android:background">#F44336</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
     </style>
 </resources>

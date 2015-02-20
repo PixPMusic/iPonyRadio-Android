@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iponyradio.androidrelease" >
+    package="com.iponyradio.android" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -11,7 +13,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainPicker"
+            android:name="com.iponyradio.android.MainPicker"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,18 +23,26 @@
         </activity>
         <!-- Single List Item Activity -->
         <activity
-            android:name=".SingleStationActivity"
-            android:label="Contact" >
+            android:name="com.iponyradio.android.SingleStationActivity"
+            android:label="iPonyRadio" >
         </activity>
         <activity
-            android:name=".PlayerActivity"
+            android:name="com.iponyradio.android.PlayerActivity"
             android:label="@string/title_activity_player"
-            android:parentActivityName=".SingleStationActivity" >
+            android:parentActivityName="com.iponyradio.android.SingleStationActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.iponyradio.androidrelease.SingleStationActivity" />
+                android:value="com.iponyradio.android.SingleStationActivity" />
         </activity>
-        <service android:name=".BackgroundService"/>
+        <activity android:name="com.millennialmedia.android.MMActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="keyboardHidden|orientation|keyboard" >
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <service android:name="com.iponyradio.android.BackgroundService"/>
     </application>
 
 </manifest>
