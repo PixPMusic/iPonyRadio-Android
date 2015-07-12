@@ -3,11 +3,16 @@ package com.iponyradio.android;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -16,10 +21,17 @@ import android.widget.TextView;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,6 +52,9 @@ public class SingleStationActivity extends ListActivity {
 	private static final String TAG_NAME = "name";
     private static String id_text;
     private String station_name;
+    private String jsonStr;
+    private Drawable d;
+    private ImageView StationLogo;
 
     // contacts JSONArray
     JSONArray stations = null;
@@ -55,7 +70,7 @@ public class SingleStationActivity extends ListActivity {
         MMSDK.initialize(this);
 
         //Find the ad view for reference
-        MMAdView adViewFromXml = (MMAdView) findViewById(R.id.adView);
+        MMAdView adViewFromXml = (MMAdView) findViewById(R.id.adView2);
 
         //MMRequest object
         MMRequest request = new MMRequest();
@@ -66,14 +81,11 @@ public class SingleStationActivity extends ListActivity {
         // Get JSON values from previous intent
         station_name = in.getStringExtra(TAG_NAME);
         id_text = in.getStringExtra(TAG_ID);
-        
-        // Displaying all values on the screen
-        TextView lblName = (TextView) findViewById(R.id.station_name);
-        
-        lblName.setText(station_name);
+        jsonStr = in.getStringExtra("json");
 
         stationList = new ArrayList<HashMap<String, String>>();
 
+        StationLogo = (ImageView)findViewById(R.id.stationlogo);
         ListView lv = getListView();
 
         // Listview on item click listener
@@ -120,15 +132,19 @@ public class SingleStationActivity extends ListActivity {
 
         }
 
+        Drawable drawableFromUrl(String url) throws IOException {
+            Bitmap x;
+
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.connect();
+            InputStream input = connection.getInputStream();
+
+            x = BitmapFactory.decodeStream(input);
+            return new BitmapDrawable(x);
+        }
+
         @Override
         protected Void doInBackground(Void... arg0) {
-            // Creating service handler class instance
-            ServiceHandler sh = new ServiceHandler();
-
-            // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
-
-            Log.d("Response: ", "> " + jsonStr);
 
             if (jsonStr != null) {
                 try {
@@ -136,7 +152,10 @@ public class SingleStationActivity extends ListActivity {
 
                     // Getting JSON Array node
                     stations = jsonObj.getJSONArray(TAG_RESULT);
-                    JSONObject s = stations.getJSONObject(Integer.parseInt(id_text) -1);
+                    JSONObject s = stations.getJSONObject(Integer.parseInt(id_text));
+                    String imageURL = s.optString("image_url");
+                    Log.d("test", imageURL);
+                    d = drawableFromUrl(imageURL);
 
                         // Stream node is JSON Array
                         JSONArray streams = s.getJSONArray(TAG_STREAMS);
@@ -159,6 +178,8 @@ public class SingleStationActivity extends ListActivity {
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             } else {
                 Log.e("ServiceHandler", "Couldn't get any data from the url");
@@ -176,6 +197,7 @@ public class SingleStationActivity extends ListActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
+            StationLogo.setImageDrawable(d);
             ListAdapter adapter = new SimpleAdapter(
                     SingleStationActivity.this, stationList,
                     R.layout.list_item, new String[] {TAG_NAME, TAG_STREAM_URL}, new int[] { R.id.entry_title, R.id.list_item_stream_url });

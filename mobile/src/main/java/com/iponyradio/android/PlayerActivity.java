@@ -14,7 +14,6 @@ import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
 
-
 public class PlayerActivity extends Activity {
 
     Button PlayPause;
@@ -33,7 +32,7 @@ public class PlayerActivity extends Activity {
         MMSDK.initialize(this);
 
         //Find the ad view for reference
-        MMAdView adViewFromXml = (MMAdView) findViewById(R.id.adView);
+        MMAdView adViewFromXml = (MMAdView) findViewById(R.id.adView3);
 
         //MMRequest object
         MMRequest request = new MMRequest();
@@ -50,12 +49,13 @@ public class PlayerActivity extends Activity {
         TextView stationName = (TextView) findViewById(R.id.player_station_name);
         TextView streamName = (TextView) findViewById(R.id.player_stream_name);
         TextView streamURL = (TextView) findViewById(R.id.player_stream_url);
-        PlayPause = (Button) findViewById(R.id.playpause);
+        final PlayPauseView view = (PlayPauseView) findViewById(R.id.play_pause_view);
 
         stationName.setText(station);
         streamName.setText(stream);
         streamURL.setText(url);
-        PlayPause.setText("Play");
+        isPlaying = false;
+        if (!isPlaying) view.toggle();
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         getPrefs();
@@ -65,32 +65,27 @@ public class PlayerActivity extends Activity {
         editor.commit();
         streamService = new Intent(PlayerActivity.this, BackgroundService.class);
 
-        PlayPause.setOnClickListener(new View.OnClickListener(){
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
-                if (PlayPause.getText().equals("Play")) {
+            public void onClick(View v) {
+                view.toggle();
+                if (!isPlaying) {
                     startService(streamService);
-                    PlayPause.setText("Stop");
                 } else {
                     stopService(streamService);
-                    PlayPause.setText("Play");
                 }
+                isPlaying = !isPlaying;
             }
         });
     }
 
     public void getPrefs() {
         isPlaying = prefs.getBoolean("isPlaying", false);
-        if (isPlaying) {
-            PlayPause.setText("Stop");
-        } else {
-            PlayPause.setText("Play");
-        }
     }
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         if (isPlaying) {
             stopService(streamService);
         }

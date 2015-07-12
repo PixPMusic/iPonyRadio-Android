@@ -26,7 +26,7 @@ public class BackgroundService extends Service {
     String url;
     String station;
     // Change this int to some number specifically for this app
-    int notifId = 5315;
+    int notifId = 825;
 
     @Override
     public IBinder onBind(Intent arg0) {

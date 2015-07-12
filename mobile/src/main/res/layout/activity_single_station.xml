@@ -5,7 +5,7 @@
     android:layout_height="match_parent" tools:context=".MainPicker">
 
     <com.millennialmedia.android.MMAdView
-        android:id="@+id/adView"
+        android:id="@+id/adView2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
@@ -14,22 +14,21 @@
         mm:height="50"
         mm:apid="193466" />
 
-  <TextView android:id="@+id/station_name"
-      android:layout_below="@+id/adView"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:textSize="25dip"
-      android:paddingTop="10dip"
-      android:paddingBottom="10dip"
-      android:paddingLeft="10dp"
-      android:paddingRight="10dp"
-      android:textColor="#000000"/>
+    <ImageView
+        android:layout_below="@+id/adView2"
+        android:id="@+id/stationlogo"
+        android:layout_width="128dip"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitCenter"
+        android:layout_height="128dip"
+        android:transitionName="@string/transition_name_station_logo"
+        android:src="@drawable/placeholder" />
 
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/station_name" />
+        android:layout_below="@+id/stationlogo" />
 
 </RelativeLayout>

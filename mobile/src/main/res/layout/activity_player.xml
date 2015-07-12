@@ -8,7 +8,7 @@
     tools:context="com.iponyradio.android.PlayerActivity">
 
     <com.millennialmedia.android.MMAdView
-        android:id="@+id/adView"
+        android:id="@+id/adView3"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
@@ -18,7 +18,7 @@
         mm:apid="193467" />
 
     <TextView android:id="@+id/player_station_name"
-        android:layout_below="@+id/adView"
+        android:layout_below="@+id/adView3"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textSize="25dip"
@@ -46,11 +46,15 @@
         android:layout_below="@+id/player_stream_name"
         android:layout_alignParentStart="true" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/playpause"
+    <com.iponyradio.android.PlayPauseView
+        android:id="@+id/play_pause_view"
+        android:layout_width="72dip"
+        android:layout_height="72dip"
+        android:clickable="true"
+        android:foreground="?android:selectableItemBackground"
+        android:stateListAnimator="@anim/button_elevation"
+        android:padding="16dip"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:textColor="#000000"/>
+        android:layout_marginBottom="81dp" />
 </RelativeLayout>

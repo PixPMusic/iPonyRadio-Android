@@ -1,172 +1,163 @@
 package com.iponyradio.android;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
 
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
 
-public class MainPicker extends ListActivity {
-
-    private ProgressDialog pDialog;
-
-    // URL to get contacts JSON
+public class MainPicker extends Activity {
+    private static final String TAG = "RecyclerViewExample";
+    private List<FeedItem> feedsList;
+    private RecyclerView mRecyclerView;
+    private MyRecyclerAdapter adapter;
+    private ProgressBar progressBar;
     private static String url = "http://iponyradio.com/android-api";
-
-    // JSON Node names
-    private static final String TAG_RESULT = "result";
-    private static final String TAG_ID = "id";
-    private static final String TAG_NAME = "name";
-
-    // contacts JSONArray
-    JSONArray stations = null;
-
-    // Hashmap for ListView
-    ArrayList<HashMap<String, String>> stationList;
+    private JSONObject json;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_picker);
+        setContentView(R.layout.activity_feeds_list);
+
         MMSDK.initialize(this);
 
         //Find the ad view for reference
         MMAdView adViewFromXml = (MMAdView) findViewById(R.id.adView);
 
-        //MMRequest object
+        MMRequest object;
         MMRequest request = new MMRequest();
 
         adViewFromXml.setMMRequest(request);
 
         adViewFromXml.getAd();
 
-        stationList = new ArrayList<HashMap<String, String>>();
+        // Initialize recycler view
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        ListView lv = getListView();
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.VISIBLE);
 
-        // Listview on item click listener
-        lv.setOnItemClickListener(new OnItemClickListener() {
+        // Downloading data from below url
+        new AsyncHttpTask().execute(url);
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // getting values from selected ListItem
-                String name = ((TextView) view.findViewById(R.id.entry_title))
-                        .getText().toString();
+        final Context c = getApplicationContext();
+        mRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(c, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+                        String name = ((TextView) view.findViewById(R.id.title))
+                                .getText().toString();
+                        // Starting single contact activity
+                        Intent in = new Intent(c,
+                                SingleStationActivity.class);
+                        in.putExtra("name", name);
+                        in.putExtra("id", position + "");
+                        in.putExtra("json", json.toString());
 
-                String station_id = ((TextView) view.findViewById(R.id.id))
-                        .getText().toString();
-                // Starting single contact activity
-                Intent in = new Intent(getApplicationContext(),
-                        SingleStationActivity.class);
-                in.putExtra(TAG_NAME, name);
-                in.putExtra("id", station_id);
-                startActivity(in);
+                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                // the context of the activity
+                                MainPicker.this,
 
-            }
-        });
-
-        // Calling async task to get json
-        new GetContacts().execute();
+                                // For each shared element, add to this method a new Pair item,
+                                // which contains the reference of the view we are transitioning *from*,
+                                // and the value of the transitionName attribute
+                                new Pair<View, String>(view.findViewById(R.id.thumbnail),
+                                        getString(R.string.transition_name_station_logo))
+                        );
+                        ActivityCompat.startActivity(MainPicker.this, in, options.toBundle());
+                    }
+                })
+        );
     }
 
-
-
-    /**
-     * Async task class to get json by making HTTP call
-     * */
-    private class GetContacts extends AsyncTask<Void, Void, Void> {
+    public class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
-            // Showing progress dialog
-            pDialog = new ProgressDialog(MainPicker.this);
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
-
+            setProgressBarIndeterminateVisibility(true);
         }
 
         @Override
-        protected Void doInBackground(Void... arg0) {
-            // Creating service handler class instance
-            ServiceHandler sh = new ServiceHandler();
+        protected Integer doInBackground(String... params) {
+            Integer result = 0;
+            HttpURLConnection urlConnection;
+            try {
+                URL url = new URL(params[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                int statusCode = urlConnection.getResponseCode();
 
-            // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
-
-            Log.d("Response: ", "> " + jsonStr);
-
-            if (jsonStr != null) {
-                try {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-
-                    // Getting JSON Array node
-                    stations = jsonObj.getJSONArray(TAG_RESULT);
-
-                    // looping through All Contacts
-                    for (int i = 0; i < stations.length(); i++) {
-                        JSONObject s = stations.getJSONObject(i);
-
-                        String id = s.getString(TAG_ID);
-                        String name = s.getString(TAG_NAME);
-
-                        // tmp hashmap for single station
-                        HashMap<String, String> station = new HashMap<String, String>();
-
-                        // adding each child node to HashMap key => value
-                        station.put(TAG_ID, id);
-                        station.put(TAG_NAME, name);
-
-                        // adding contact to contact list
-                        stationList.add(station);
+                // 200 represents HTTP OK
+                if (statusCode == 200) {
+                    BufferedReader r = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = r.readLine()) != null) {
+                        response.append(line);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    parseResult(response.toString());
+                    result = 1; // Successful
+                } else {
+                    result = 0; //"Failed to fetch data!";
                 }
-            } else {
-                Log.e("ServiceHandler", "Couldn't get any data from the url");
+            } catch (Exception e) {
+                Log.d(TAG, e.getLocalizedMessage());
             }
-
-            return null;
+            return result; //"Failed to fetch data!";
         }
 
         @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            // Dismiss the progress dialog
-            if (pDialog.isShowing())
-                pDialog.dismiss();
-            /**
-             * Updating parsed JSON data into ListView
-             * */
-            ListAdapter adapter = new SimpleAdapter(
-                    MainPicker.this, stationList,
-                    R.layout.list_item, new String[] { TAG_NAME, TAG_ID,}, new int[] { R.id.entry_title, R.id.id });
+        protected void onPostExecute(Integer result) {
+            // Download complete. Let us update UI
+            progressBar.setVisibility(View.GONE);
 
-            setListAdapter(adapter);
+            if (result == 1) {
+                adapter = new MyRecyclerAdapter(MainPicker.this, feedsList);
+                mRecyclerView.setAdapter(adapter);
+            }
         }
-
     }
 
+    private void parseResult(String result) {
+        try {
+            json = new JSONObject(result);
+            JSONArray stations = json.optJSONArray("result");
+            feedsList = new ArrayList<>();
+
+            for (int i = 0; i < stations.length(); i++) {
+                JSONObject s = stations.optJSONObject(i);
+                FeedItem station = new FeedItem();
+                station.setTitle(s.optString("name"));
+                station.setThumbnail(s.optString("image_url"));
+
+                feedsList.add(station);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

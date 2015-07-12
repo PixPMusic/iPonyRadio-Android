@@ -11,4 +11,5 @@
     <string name="now_playing">is now playing</string>
     <string name="buffering">Buffering…</string>
 
+    <string name="transition_name_station_logo">transition:STATIONLOGO</string>
 </resources>
