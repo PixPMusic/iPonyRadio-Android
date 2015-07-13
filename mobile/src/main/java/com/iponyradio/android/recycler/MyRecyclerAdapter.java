@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.android.recycler;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.iponyradio.android.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -35,10 +36,12 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
     public void onBindViewHolder(FeedListRowHolder feedListRowHolder, int i) {
         FeedItem feedItem = feedItemList.get(i);
 
-        Picasso.with(mContext).load(feedItem.getThumbnail())
-                .error(R.drawable.placeholder)
-                .placeholder(R.drawable.placeholder)
-                .into(feedListRowHolder.thumbnail);
+        if (!feedItem.getThumbnail().equals("ignore")) {
+            Picasso.with(mContext).load(feedItem.getThumbnail())
+                    .error(R.drawable.placeholder)
+                    .placeholder(R.drawable.placeholder)
+                    .into(feedListRowHolder.thumbnail);
+        }
 
         feedListRowHolder.title.setText(Html.fromHtml(feedItem.getTitle()));
     }

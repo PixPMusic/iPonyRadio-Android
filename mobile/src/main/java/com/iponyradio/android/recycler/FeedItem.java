@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.android.recycler;
 
 public class FeedItem {
     private String title;

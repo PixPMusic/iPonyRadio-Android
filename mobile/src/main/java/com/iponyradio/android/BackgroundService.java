@@ -25,7 +25,6 @@ public class BackgroundService extends Service {
     NotificationManager notificationManager;
     String url;
     String station;
-    // Change this int to some number specifically for this app
     int notifId = 825;
 
     @Override
@@ -42,8 +41,8 @@ public class BackgroundService extends Service {
 
         // Init the SharedPreferences and Editor
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        url = prefs.getString("URL", "http://176.31.115.196:8214/");
-        station = prefs.getString("STATION", "FOOBAR");
+        url = prefs.getString("CURRENT_STREAM_URL", "http://176.31.115.196:8214/");
+        station = prefs.getString("CURRENT_STATION_NAME", "FOOBAR");
         editor = prefs.edit();
 
         // Set up the buffering notification

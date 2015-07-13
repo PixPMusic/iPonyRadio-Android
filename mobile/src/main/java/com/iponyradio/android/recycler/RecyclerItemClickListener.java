@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.android.recycler;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

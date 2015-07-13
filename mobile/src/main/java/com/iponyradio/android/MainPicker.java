@@ -8,8 +8,10 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -19,25 +21,29 @@ import android.widget.TextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import com.iponyradio.android.recycler.FeedItem;
+import com.iponyradio.android.recycler.MyRecyclerAdapter;
+import com.iponyradio.android.recycler.RecyclerItemClickListener;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
 
 public class MainPicker extends Activity {
-    private static final String TAG = "RecyclerViewExample";
     private List<FeedItem> feedsList;
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter adapter;
     private ProgressBar progressBar;
     private static String url = "http://iponyradio.com/android-api";
     private JSONObject json;
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +73,9 @@ public class MainPicker extends Activity {
         new AsyncHttpTask().execute(url);
 
         final Context c = getApplicationContext();
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(c);
+
         mRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(c, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
@@ -75,9 +84,11 @@ public class MainPicker extends Activity {
                         // Starting single contact activity
                         Intent in = new Intent(c,
                                 SingleStationActivity.class);
-                        in.putExtra("name", name);
-                        in.putExtra("id", position + "");
-                        in.putExtra("json", json.toString());
+                        editor = prefs.edit();
+                        editor.putString("CURRENT_STATION_NAME", name);
+                        editor.putInt("CURRENT_STATION_ID", position);
+                        editor.putString("JSON_DATA", json.toString());
+                        editor.commit();
 
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                                 // the context of the activity
@@ -125,7 +136,7 @@ public class MainPicker extends Activity {
                     result = 0; //"Failed to fetch data!";
                 }
             } catch (Exception e) {
-                Log.d(TAG, e.getLocalizedMessage());
+                Log.d("iPonyRadio", e.getLocalizedMessage());
             }
             return result; //"Failed to fetch data!";
         }

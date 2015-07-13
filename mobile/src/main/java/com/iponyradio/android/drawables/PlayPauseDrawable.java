@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.android.drawables;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -15,6 +15,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.Property;
+
+import com.iponyradio.android.R;
 
 public class PlayPauseDrawable extends Drawable {
 

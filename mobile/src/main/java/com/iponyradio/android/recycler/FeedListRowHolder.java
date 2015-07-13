@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.android.recycler;
 
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.iponyradio.android.R;
 
 public class FeedListRowHolder extends RecyclerView.ViewHolder {
     protected ImageView thumbnail;

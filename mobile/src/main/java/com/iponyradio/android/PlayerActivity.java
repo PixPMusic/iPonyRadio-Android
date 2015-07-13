@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.iponyradio.android.drawables.PlayPauseView;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
@@ -22,6 +23,9 @@ public class PlayerActivity extends Activity {
     Intent streamService;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
+    String station;
+    String stream;
+    String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +41,8 @@ public class PlayerActivity extends Activity {
         //MMRequest object
         MMRequest request = new MMRequest();
 
-        // getting intent data
-        Intent in = getIntent();
-
-        // Get JSON values from previous intent
-        String station = in.getStringExtra("STATION_NAME");
-        String stream = in.getStringExtra("STREAM_NAME");
-        String url = in.getStringExtra("STREAM_URL");
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        getPrefs();
 
         // Displaying all values on the screen
         TextView stationName = (TextView) findViewById(R.id.player_station_name);
@@ -57,29 +56,26 @@ public class PlayerActivity extends Activity {
         isPlaying = false;
         if (!isPlaying) view.toggle();
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        getPrefs();
-        editor = prefs.edit();
-        editor.putString("URL", url);
-        editor.putString("STATION", station);
-        editor.commit();
         streamService = new Intent(PlayerActivity.this, BackgroundService.class);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view.toggle();
                 if (!isPlaying) {
                     startService(streamService);
                 } else {
                     stopService(streamService);
                 }
                 isPlaying = !isPlaying;
+                view.toggle();
             }
         });
     }
 
     public void getPrefs() {
+        station = prefs.getString("CURRENT_STATION_NAME", null);
+        url = prefs.getString("CURRENT_STREAM_URL", null);
+        stream = prefs.getString("CURRENT_STREAM_NAME", null);
         isPlaying = prefs.getBoolean("isPlaying", false);
     }
 

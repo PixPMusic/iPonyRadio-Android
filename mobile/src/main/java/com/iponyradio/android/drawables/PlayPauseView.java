@@ -1,4 +1,4 @@
-package com.iponyradio.android;
+package com.iponyradio.android.drawables;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+
+import com.iponyradio.android.R;
 
 public class PlayPauseView extends FrameLayout {
 
