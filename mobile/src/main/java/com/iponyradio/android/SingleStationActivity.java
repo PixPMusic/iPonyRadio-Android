@@ -1,7 +1,6 @@
 package com.iponyradio.android;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.iponyradio.android.recycler.FeedItem;
 import com.iponyradio.android.recycler.MyRecyclerAdapter;
@@ -28,22 +26,20 @@ import com.iponyradio.android.recycler.RecyclerItemClickListener;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
+import wseemann.media.FFmpegMediaMetadataRetriever;
+import wseemann.media.Metadata;
 
 public class SingleStationActivity extends Activity {
 
@@ -72,6 +68,7 @@ public class SingleStationActivity extends Activity {
     private Drawable d;
     private ImageView StationLogo;
     private static ArrayList<String> StreamURLs;
+    private static String station_shortcode;
 
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
@@ -129,6 +126,7 @@ public class SingleStationActivity extends Activity {
                         editor = prefs.edit();
                         editor.putString("CURRENT_STREAM_NAME", stream_name);
                         editor.putString("CURRENT_STREAM_URL", stream_url);
+                        editor.putString("CURRENT_STATION_SHORTCODE", station_shortcode);
                         editor.commit();
 
                         //Start the activity
@@ -174,8 +172,8 @@ public class SingleStationActivity extends Activity {
             JSONObject s = stations.optJSONObject(id);
             JSONArray streams = s.getJSONArray(TAG_STREAMS);
 
+            station_shortcode = s.optString("shortcode");
             String imageURL = s.optString("image_url");
-            Log.d("asdf", imageURL);
 
             d = drawableFromUrl(imageURL);
 
@@ -205,4 +203,8 @@ public class SingleStationActivity extends Activity {
         x = BitmapFactory.decodeStream(input);
         return new BitmapDrawable(x);
     }
+
+
 }
+
+
