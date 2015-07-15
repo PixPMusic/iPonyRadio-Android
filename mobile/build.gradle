@@ -8,8 +8,8 @@ android {
         applicationId "com.iponyradio.android"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 10
-        versionName "1.0.6-beta3"
+        versionCode 11
+        versionName "1.0.6-beta4"
     }
     buildTypes {
         release {

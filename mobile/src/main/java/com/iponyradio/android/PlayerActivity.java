@@ -83,7 +83,7 @@ public class PlayerActivity extends Activity {
         isPlaying = false;
         if (!isPlaying) view.toggle();
 
-        streamService = new Intent(PlayerActivity.this, BackgroundService.class);
+        streamService = new Intent(PlayerActivity.this, MediaService.class);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override

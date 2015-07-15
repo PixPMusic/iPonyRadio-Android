@@ -127,6 +127,7 @@ public class SingleStationActivity extends Activity {
                         editor.putString("CURRENT_STREAM_NAME", stream_name);
                         editor.putString("CURRENT_STREAM_URL", stream_url);
                         editor.putString("CURRENT_STATION_SHORTCODE", station_shortcode);
+                        editor.putInt("CURRENT_STREAM_ID", position);
                         editor.commit();
 
                         //Start the activity
