@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -86,6 +87,10 @@ public class SingleStationActivity extends Activity {
         //MMRequest object
         MMRequest request = new MMRequest();
 
+        adViewFromXml.setMMRequest(request);
+
+        adViewFromXml.getAd();
+
         // getting intent data
         Intent in = getIntent();
         
@@ -127,7 +132,7 @@ public class SingleStationActivity extends Activity {
                         editor.putString("CURRENT_STREAM_NAME", stream_name);
                         editor.putString("CURRENT_STREAM_URL", stream_url);
                         editor.putString("CURRENT_STATION_SHORTCODE", station_shortcode);
-                        editor.putInt("CURRENT_STREAM_ID", position);
+                        editor.putInt("CURRENT_STREAM_IDq", position);
                         editor.commit();
 
                         //Start the activity

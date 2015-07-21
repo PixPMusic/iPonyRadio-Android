@@ -69,6 +69,7 @@ public class MediaService extends Service{
     private static Handler mHandler;
 
     private static boolean isPlaying = false;
+    private static boolean isPaused = false;
 
     private static final String LOG_KEY = "iPonyRadio-Debug";
 
@@ -81,6 +82,7 @@ public class MediaService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
+        mHandler = new Handler();
     }
 
     private void handleIntent(Intent intent) {
@@ -170,16 +172,29 @@ public class MediaService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         getPrefs();
-        if(mManager == null) {
-            try {
-                initMediaSessions();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (!isPlaying) {
+            if (!isPaused) {
+                if (mManager == null) {
+                    try {
+                        initMediaSessions();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                isPaused = false;
+                isPlaying = true;
+                startRepeatingTask();
+                mMediaPLayer.start();
+                if (Build.VERSION.SDK_INT >= 21) {
+                    buildNotification(generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE));
+                } else {
+                    buildNotification();
+                }
             }
         }
-
         handleIntent(intent);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -204,7 +219,8 @@ public class MediaService extends Service{
         });
         mMediaPLayer.prepareAsync();
 
-        mHandler = new Handler();
+
+        sendMessage();
         startRepeatingTask();
 
         mSession = new MediaSessionCompat(getApplicationContext(), LOG_KEY);
@@ -219,7 +235,9 @@ public class MediaService extends Service{
                 Log.d(LOG_KEY, "onPlay");
                 Log.d(LOG_KEY, "You clicked the Play button");
                 if (!isPlaying) {
+                    isPaused = false;
                     isPlaying = true;
+                    sendMessage();
                     startRepeatingTask();
                     mMediaPLayer.start();
                     if (Build.VERSION.SDK_INT >= 21) {
@@ -235,11 +253,12 @@ public class MediaService extends Service{
                 // TODO Auto-generated method stub
                 //super.onPause();
                 Log.d(LOG_KEY, "onPause");
-                Log.d(LOG_KEY, "You clicked the Pause button");
                 if (isPlaying) {
+                    isPaused = true;
                     isPlaying = false;
+                    sendMessage();
                     stopRepeatingTask();
-                    mMediaPLayer.stop();
+                    mMediaPLayer.pause();
                     if (Build.VERSION.SDK_INT >= 21) {
                         buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
                     } else {
@@ -253,8 +272,10 @@ public class MediaService extends Service{
                 // TODO Auto-generated method stub
                 //super.onStop();
                 Log.d(LOG_KEY, "You clicked the Stop button");
+                isPaused = false;
                 isPlaying = false;
                 Log.d(LOG_KEY, "onStop");
+                sendMessage();
                 NotificationManager notificationManager = (NotificationManager) getApplicationContext()
                         .getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.cancel(NOTIFICATION_ID);
@@ -281,6 +302,9 @@ public class MediaService extends Service{
         mMediaPLayer.release();
         mMediaPLayer = null;
         isPlaying = false;
+        isPaused = false;
+        mManager = null;
+        sendMessage();
         NotificationManager n = (NotificationManager) getApplicationContext()
                 .getSystemService(NOTIFICATION_SERVICE);
         n.cancel(NOTIFICATION_ID);
@@ -349,6 +373,8 @@ public class MediaService extends Service{
     private void sendMessage() {
         Intent intent = new Intent("ipr-update-meta");
         // You can also include some extra data.
+        intent.putExtra("isPlaying", isPlaying);
+        intent.putExtra("isPaused", isPaused);
         intent.putExtra("title", TITLE);
         intent.putExtra("artist", ARTIST);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);

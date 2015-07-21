@@ -40,6 +40,7 @@ public class PlayerActivity extends Activity {
 
     static Context context;
     boolean isPlaying;
+    boolean isPaused;
     Intent streamService;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
@@ -53,6 +54,8 @@ public class PlayerActivity extends Activity {
     TextView stationName;
     TextView streamName;
     TextView streamURL;
+
+    private static PlayPauseView view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,10 @@ public class PlayerActivity extends Activity {
         //MMRequest object
         MMRequest request = new MMRequest();
 
+        adViewFromXml.setMMRequest(request);
+
+        adViewFromXml.getAd();
+
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         getPrefs();
 
@@ -75,7 +82,7 @@ public class PlayerActivity extends Activity {
         stationName = (TextView) findViewById(R.id.player_station_name);
         streamName = (TextView) findViewById(R.id.player_stream_name);
         streamURL = (TextView) findViewById(R.id.player_stream_url);
-        final PlayPauseView view = (PlayPauseView) findViewById(R.id.play_pause_view);
+        view = (PlayPauseView) findViewById(R.id.play_pause_view);
 
         stationName.setText(station);
         streamName.setText(stream);
@@ -111,6 +118,12 @@ public class PlayerActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get extra data included in the Intent
+            boolean isPlayingTemp = intent.getBooleanExtra("isPlaying", true);
+            if (!isPlayingTemp == isPlaying) {
+                view.toggle();
+            }
+            isPlaying = isPlayingTemp;
+            isPaused = intent.getBooleanExtra("isPaused", false);
             artist = intent.getStringExtra("artist");
             title = intent.getStringExtra("title");
             streamName.setText(title);

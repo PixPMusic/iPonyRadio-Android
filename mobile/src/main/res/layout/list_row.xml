@@ -12,11 +12,17 @@
         <ImageView
             android:id="@+id/thumbnail"
             android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:transitionName="@string/transition_name_station_logo" />
+            android:src="@drawable/ic_launcher"
+            android:cropToPadding="false"
+            android:transitionName="@string/transition_name_station_logo"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            />
 
         <TextView
             android:id="@+id/title"
@@ -26,9 +32,9 @@
             android:layout_toRightOf="@+id/thumbnail"
             android:maxLines="3"
             android:padding="8dp"
-            android:text="dafdafda"
+            android:text="Main - Just Music Only! (128k MP3)"
             android:textColor="#222"
-            android:textSize="15dp" />
+            android:textSize="18dp" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>
