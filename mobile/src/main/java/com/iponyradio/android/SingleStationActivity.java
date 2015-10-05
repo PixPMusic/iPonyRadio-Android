@@ -12,8 +12,10 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +44,7 @@ import java.util.List;
 import wseemann.media.FFmpegMediaMetadataRetriever;
 import wseemann.media.Metadata;
 
-public class SingleStationActivity extends Activity {
+public class SingleStationActivity extends AppCompatActivity {
 
     private List<FeedItem> feedsList;
     private RecyclerView mRecyclerView;
@@ -78,6 +80,9 @@ public class SingleStationActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_station);
+        // Set a ToolBar to replace the ActionBar.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         MMSDK.initialize(this);
 

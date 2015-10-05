@@ -15,6 +15,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -35,7 +37,7 @@ import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
 
-public class MainPicker extends Activity {
+public class MainPicker extends AppCompatActivity {
     private List<FeedItem> feedsList;
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter adapter;
@@ -49,6 +51,10 @@ public class MainPicker extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feeds_list);
+
+        // Set a ToolBar to replace the ActionBar.
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         MMSDK.initialize(this);
 

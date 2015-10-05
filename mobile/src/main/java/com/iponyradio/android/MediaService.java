@@ -5,11 +5,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
@@ -22,10 +24,12 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -44,6 +48,7 @@ public class MediaService extends Service{
     public static final String ACTION_PLAY = "action_play";
     public static final String ACTION_PAUSE = "action_pause";
     public static final String ACTION_STOP = "action_stop";
+    public static final String ACTION_MEDIA_BUTTONS = "action_media_buttons";
 
     private static SharedPreferences mSharedPreferences;
     private static SharedPreferences.Editor mEditor;
@@ -54,6 +59,8 @@ public class MediaService extends Service{
     private static String ARTIST = "Buffering";
     private static String TITLE = "iPonyRadio";
     private static String STATION = "iPonyRadio";
+    private static int NOTIF_COLOR;
+    private static int NOTIF_TEXT_COLOR;
 
     private static String ALBUM_ART_URL;
     private static String STATION_LOGO_URL;
@@ -83,6 +90,9 @@ public class MediaService extends Service{
     public void onCreate() {
         super.onCreate();
         mHandler = new Handler();
+        ALBUM_ART_URL = null;
+        NOTIF_COLOR = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary);
+        NOTIF_TEXT_COLOR = ContextCompat.getColor(getApplicationContext(), R.color.white);
     }
 
     private void handleIntent(Intent intent) {
@@ -114,10 +124,10 @@ public class MediaService extends Service{
         Notification.MediaStyle style = new Notification.MediaStyle();
 
         mSession.setMetadata(new MediaMetadataCompat.Builder()
-                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ALBUM_ART)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, ARTIST)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, STATION)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, TITLE)
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, ALBUM_ART)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, ARTIST)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, STATION)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, TITLE)
                 .build());
 
         Intent intent = new Intent(getApplicationContext(), MediaService.class);
@@ -131,7 +141,7 @@ public class MediaService extends Service{
                 .setContentText(ARTIST)
                 .setLargeIcon(ALBUM_ART)
                 .setDeleteIntent(pendingIntent)
-                .setColor(getResources().getColor(R.color.colorPrimaryDark))
+                .setColor(NOTIF_COLOR)
                 .setStyle(style);
 
         builder.addAction(generateAction(android.R.drawable.ic_delete, "Stop", ACTION_STOP));
@@ -154,7 +164,7 @@ public class MediaService extends Service{
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(android.R.drawable.ic_media_play)
                             .setOngoing(true)
-                            .setColor(getResources().getColor(R.color.colorPrimaryDark))
+                            .setColor(NOTIF_COLOR)
                             .setContentTitle(TITLE)
                             .setContentText(ARTIST);
             // Creates an explicit intent for an Activity in your app
@@ -172,6 +182,7 @@ public class MediaService extends Service{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         getPrefs();
+        ALBUM_ART_URL = null;
         if (!isPlaying) {
             if (!isPaused) {
                 if (mManager == null) {
@@ -223,7 +234,15 @@ public class MediaService extends Service{
         sendMessage();
         startRepeatingTask();
 
-        mSession = new MediaSessionCompat(getApplicationContext(), LOG_KEY);
+        // Start a new MediaSession
+        ComponentName eventReceiver = new ComponentName(getPackageName(), "MediaService");
+        PendingIntent buttonReceiverIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                new Intent(ACTION_MEDIA_BUTTONS),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        mSession = new MediaSessionCompat(this, "MediaService", eventReceiver, buttonReceiverIntent);
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mController = new MediaControllerCompat(getApplicationContext(), mSession.getSessionToken());
 
@@ -250,7 +269,6 @@ public class MediaService extends Service{
 
             @Override
             public void onPause() {
-                // TODO Auto-generated method stub
                 //super.onPause();
                 Log.d(LOG_KEY, "onPause");
                 if (isPlaying) {
@@ -269,8 +287,7 @@ public class MediaService extends Service{
 
             @Override
             public void onStop() {
-                // TODO Auto-generated method stub
-                //super.onStop();
+                super.onStop();
                 Log.d(LOG_KEY, "You clicked the Stop button");
                 isPaused = false;
                 isPlaying = false;
@@ -377,6 +394,7 @@ public class MediaService extends Service{
         intent.putExtra("isPaused", isPaused);
         intent.putExtra("title", TITLE);
         intent.putExtra("artist", ARTIST);
+        intent.putExtra("album_art", ALBUM_ART_URL);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -401,6 +419,11 @@ public class MediaService extends Service{
             if (!albumURLtemp.equals(ALBUM_ART_URL)) {
                 ALBUM_ART_URL = albumURLtemp;
                 ALBUM_ART = drawableFromUrl(ALBUM_ART_URL);
+                Palette p = Palette.from(ALBUM_ART).generate();
+                int tempColor = p.getDarkVibrantColor(NOTIF_COLOR);
+                if (tempColor != NOTIF_COLOR) {
+                    NOTIF_COLOR = tempColor;
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

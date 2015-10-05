@@ -1,23 +1,31 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mm="http://millennialmedia.com/android/schema"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_vertical_margin">
+    android:orientation="vertical">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:elevation="6dp"
+        android:fitsSystemWindows="true">
+    </android.support.v7.widget.Toolbar>
 
     <com.millennialmedia.android.MMAdView
         android:id="@+id/adView"
         android:layout_width="320dp"
         android:layout_height="50dp"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/toolbar"
         android:layout_centerHorizontal="true"
         mm:width="320"
         mm:height="50"
         mm:apid="193465" />
 
-    <view
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
-        class="android.support.v7.widget.RecyclerView"
         android:layout_below="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,4 +37,4 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
 
-</RelativeLayout>
+</LinearLayout>

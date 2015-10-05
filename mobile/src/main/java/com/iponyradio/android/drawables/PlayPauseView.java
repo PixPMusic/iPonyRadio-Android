@@ -39,13 +39,14 @@ public class PlayPauseView extends FrameLayout {
 
     private final PlayPauseDrawable mDrawable;
     private final Paint mPaint = new Paint();
-    private final int mPauseBackgroundColor;
-    private final int mPlayBackgroundColor;
+    private static int mPauseBackgroundColor;
+    private static int mPlayBackgroundColor;
 
-    private AnimatorSet mAnimatorSet;
+    private static AnimatorSet mAnimatorSet;
     private int mBackgroundColor;
     private int mWidth;
     private int mHeight;
+    private static int backgroundColor;
 
     public PlayPauseView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -57,7 +58,22 @@ public class PlayPauseView extends FrameLayout {
         mDrawable.setCallback(this);
 
         mPauseBackgroundColor = getResources().getColor(R.color.purple);
-        mPlayBackgroundColor = getResources().getColor(R.color.blue);
+        mPlayBackgroundColor = getResources().getColor(R.color.purple);
+    }
+
+    public void updateBackgroundColor(int newColor){
+        if (newColor != mBackgroundColor) {
+            if (newColor != 0xF44336) {
+                mPauseBackgroundColor = newColor;
+                mPlayBackgroundColor = newColor;
+                mAnimatorSet = new AnimatorSet();
+                final ObjectAnimator colorAnim = ObjectAnimator.ofInt(this, COLOR, mPlayBackgroundColor);
+                mAnimatorSet.setInterpolator(new DecelerateInterpolator());
+                mAnimatorSet.setDuration(PLAY_PAUSE_ANIMATION_DURATION);
+                mAnimatorSet.playTogether(colorAnim);
+                mAnimatorSet.start();
+            }
+        }
     }
 
     @Override
