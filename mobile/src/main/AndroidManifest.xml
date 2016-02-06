@@ -29,8 +29,7 @@
         <activity
             android:name=".PlayerActivity"
             android:label="@string/title_activity_player"
-            android:parentActivityName=".SingleStationActivity"
-            android:configChanges="orientation">
+            android:parentActivityName=".SingleStationActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.iponyradio.android.SingleStationActivity" />

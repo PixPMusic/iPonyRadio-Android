@@ -5,7 +5,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,11 +15,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ProgressBar;
 
@@ -30,9 +29,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import com.iponyradio.android.recycler.FeedItem;
-import com.iponyradio.android.recycler.MyRecyclerAdapter;
-import com.iponyradio.android.recycler.RecyclerItemClickListener;
+import com.iponyradio.android.recyclerCard.FeedItem;
+import com.iponyradio.android.recyclerCard.MyRecyclerAdapter;
+import com.iponyradio.android.recyclerCard.RecyclerItemClickListener;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
@@ -70,8 +69,7 @@ public class MainPicker extends AppCompatActivity {
 
         // Initialize recycler view
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,1));
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.VISIBLE);
 

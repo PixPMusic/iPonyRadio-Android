@@ -80,6 +80,8 @@ public class MediaService extends Service{
 
     private static final String LOG_KEY = "iPonyRadio-Debug";
 
+    private static Intent streamService;
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO Auto-generated method stub
@@ -130,12 +132,15 @@ public class MediaService extends Service{
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, TITLE)
                 .build());
 
+        style.setMediaSession((MediaSession.Token) mSession.getSessionToken().getToken());
+
         Intent intent = new Intent(getApplicationContext(), MediaService.class);
         intent.setAction(ACTION_STOP);
         PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
         Notification.Builder builder = new Notification.Builder(this)
                 .setSmallIcon(android.R.drawable.ic_media_play)
                 .setOngoing(true)
+                .setPriority(Notification.PRIORITY_HIGH)
                 .setContentTitle(TITLE)
                 .setContentInfo(STATION)
                 .setContentText(ARTIST)
@@ -164,6 +169,7 @@ public class MediaService extends Service{
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(android.R.drawable.ic_media_play)
                             .setOngoing(true)
+                            .setPriority(5)
                             .setColor(NOTIF_COLOR)
                             .setContentTitle(TITLE)
                             .setContentText(ARTIST);
@@ -293,6 +299,7 @@ public class MediaService extends Service{
                 isPlaying = false;
                 Log.d(LOG_KEY, "onStop");
                 sendMessage();
+                stopRepeatingTask();
                 NotificationManager notificationManager = (NotificationManager) getApplicationContext()
                         .getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.cancel(NOTIFICATION_ID);
@@ -301,6 +308,22 @@ public class MediaService extends Service{
             }
         });
         mManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
+    }
+
+    public static boolean getIsPlaying() {
+        return isPlaying;
+    }
+
+    public static Intent getStreamService() {
+        return streamService;
+    }
+
+    public static void setStreamService(Intent s) {
+        streamService = s;
+    }
+
+    public static String getStationName() {
+        return STATION;
     }
 
     @Override

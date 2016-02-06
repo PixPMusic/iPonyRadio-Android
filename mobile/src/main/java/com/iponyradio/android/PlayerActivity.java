@@ -1,6 +1,5 @@
 package com.iponyradio.android;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,12 +8,11 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
-import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -22,30 +20,15 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.iponyradio.android.drawables.PlayPauseView;
-import com.iponyradio.android.recycler.FeedItem;
-import com.iponyradio.android.recycler.MyRecyclerAdapter;
-import com.millennialmedia.android.MMAdView;
-import com.millennialmedia.android.MMRequest;
-import com.millennialmedia.android.MMSDK;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-
-import wseemann.media.FFmpegMediaMetadataRetriever;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -117,7 +100,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle(station + " - iPR");
+        collapsingToolbar.setTitle("");
+        collapsingToolbar.setExpandedTitleColor(0x000000);
 
         streamName.setText(stream);
         streamName.setSelected(true);
@@ -126,11 +110,21 @@ public class PlayerActivity extends AppCompatActivity {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.ic_launcher);
         ALBUM_ART = icon;
-        isPlaying = false;
-        if (!isPlaying) view.toggle();
 
-        streamService = new Intent(PlayerActivity.this, MediaService.class);
 
+
+        isPlaying = MediaService.getIsPlaying();
+        if (!isPlaying) {
+            view.toggle();
+            streamService = new Intent(PlayerActivity.this, MediaService.class);
+            MediaService.setStreamService(streamService);
+        } else if (!station.equals(MediaService.getStationName())) {
+            stopService(MediaService.getStreamService());
+            streamService = new Intent(PlayerActivity.this, MediaService.class);
+            MediaService.setStreamService(streamService);
+        } else {
+            streamService = MediaService.getStreamService();
+        }
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,11 +145,6 @@ public class PlayerActivity extends AppCompatActivity {
                 new IntentFilter("ipr-update-meta"));
     }
 
-    @Override
-    public void onConfigurationChanged (Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
     // Our handler for received Intents. This will be called whenever an Intent
     // with an action named "custom-event-name" is broadcasted.
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -171,7 +160,7 @@ public class PlayerActivity extends AppCompatActivity {
             String artistTemp = intent.getStringExtra("artist");
             if (!artistTemp.equals(artist)) {
                 artist = artistTemp;
-                streamURL.setText(artist);
+                streamURL.setText(artist + " - " + station);
             }
             String titleTemp = intent.getStringExtra("title");
             if (!titleTemp.equals(title)) {
@@ -216,7 +205,7 @@ public class PlayerActivity extends AppCompatActivity {
         ALBUM_ART_URL = null;
         ALBUM_ART = null;
         if (isPlaying) {
-            stopService(streamService);
+            //stopService(streamService);
         }
     }
 

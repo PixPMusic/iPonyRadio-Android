@@ -9,21 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="80dp">
 
-        <ImageView
-            android:id="@+id/thumbnail"
-            android:layout_width="80dp"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_launcher"
-            android:cropToPadding="false"
-            android:transitionName="@string/transition_name_station_logo"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            />
-
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"

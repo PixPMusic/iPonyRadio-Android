@@ -1,6 +1,5 @@
 package com.iponyradio.android;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -12,20 +11,21 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.iponyradio.android.recycler.FeedItem;
-import com.iponyradio.android.recycler.MyRecyclerAdapter;
-import com.iponyradio.android.recycler.RecyclerItemClickListener;
+import com.iponyradio.android.recyclerRow.FeedItem;
+import com.iponyradio.android.recyclerRow.MyRecyclerAdapter;
+import com.iponyradio.android.recyclerRow.RecyclerItemClickListener;
 import com.millennialmedia.android.MMAdView;
 import com.millennialmedia.android.MMRequest;
 import com.millennialmedia.android.MMSDK;
@@ -40,9 +40,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import wseemann.media.FFmpegMediaMetadataRetriever;
-import wseemann.media.Metadata;
 
 public class SingleStationActivity extends AppCompatActivity {
 
@@ -72,6 +69,8 @@ public class SingleStationActivity extends AppCompatActivity {
     private ImageView StationLogo;
     private static ArrayList<String> StreamURLs;
     private static String station_shortcode;
+    private static Toolbar toolbar;
+    private static CollapsingToolbarLayout collapsingToolbar;
 
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
@@ -81,8 +80,10 @@ public class SingleStationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_station);
         // Set a ToolBar to replace the ActionBar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         MMSDK.initialize(this);
 
@@ -168,10 +169,37 @@ public class SingleStationActivity extends AppCompatActivity {
 
             if (result == 1) {
                 StationLogo.setImageDrawable(d);
+                updateAlbumArt();
                 adapter = new MyRecyclerAdapter(SingleStationActivity.this, feedsList);
                 mRecyclerView.setAdapter(adapter);
             }
         }
+    }
+
+    private void updateAlbumArt() {
+        Palette p = Palette.from(((BitmapDrawable)d).getBitmap()).generate();
+        int color = p.getDarkVibrantColor(0xF44336);
+        collapsingToolbar.setBackgroundColor(color);
+        Palette.Swatch s;
+        int textColor;
+        if (p.getVibrantColor(0xffffff) != 0xffffff) {
+            s = p.getVibrantSwatch();
+            textColor = s.getTitleTextColor();
+            collapsingToolbar.setExpandedTitleColor(0x000000);
+            collapsingToolbar.setCollapsedTitleTextColor(textColor);
+            collapsingToolbar.setContentScrimColor(color);
+            collapsingToolbar.setStatusBarScrimColor(color);
+        } else if (station_name.equals("PonyvilleFM")) {
+            textColor = 0x000000;
+            collapsingToolbar.setExpandedTitleColor(textColor);
+        } else {
+            textColor = 0x000000;
+            collapsingToolbar.setExpandedTitleColor(textColor);
+            collapsingToolbar.setCollapsedTitleTextColor(textColor);
+            collapsingToolbar.setContentScrimColor(color);
+            collapsingToolbar.setStatusBarScrimColor(color);
+        }
+
     }
 
     private void parseResult() {
@@ -193,7 +221,6 @@ public class SingleStationActivity extends AppCompatActivity {
 
                 FeedItem stream = new FeedItem();
                 stream.setTitle(st.optString(TAG_STREAM_NAME));
-                stream.setThumbnail("ignore");
                 StreamURLs.add(st.optString(TAG_STREAM_URL));
                 feedsList.add(stream);
             }

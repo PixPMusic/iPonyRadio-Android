@@ -1,0 +1,39 @@
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    cardview:cardUseCompatPadding="true"
+    android:id="@+id/card">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_launcher"
+            android:cropToPadding="false"
+            android:transitionName="@string/transition_name_station_logo"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="3"
+            android:padding="8dp"
+            android:text="Main - Just Music Only! (128k MP3)"
+            android:textColor="#222"
+            android:textSize="18sp"
+            android:layout_below="@+id/thumbnail"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>
